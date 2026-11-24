@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Longest Path</title>
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/lab.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="nav">
+    <a href="index.html" class="on" aria-current="page">Lab</a>
+    <a href="play.html">Play</a>
+    <a href="generate.html">Map generator</a>
+  </nav>
+  <h1>Longest Path: optimizer lab</h1>
+  <p class="sub">The puzzle: place a limited number of walls so the shortest route from entry to exit is as long as possible. Here six algorithms race to solve it, each allowed the same number of route evaluations (one breadth-first search = one evaluation). Small and medium boards have proven optimums; on large boards the target is the best length any method has found.</p>
+
+  <div class="card controls">
+    <label>Board
+      <select id="board"></select>
+    </label>
+    <label>Evaluations per method <input id="budget" type="number" min="500" step="500"></label>
+    <div class="field">
+      <div class="field-head">
+        <label for="seed">Seed</label>
+        <label class="toggle"><input id="randomSeed" type="checkbox" checked> Randomize</label>
+      </div>
+      <input id="seed" type="number" min="1" value="1">
+    </div>
+    <div class="field grow">
+      <div class="field-head">
+        <label for="duration">Race length</label>
+        <label class="toggle"><input id="paced" type="checkbox" checked> Pace</label>
+      </div>
+      <div class="slider-row"><input id="duration" type="range" min="2" max="30" value="5"> <span id="durLabel">5s</span></div>
+    </div>
+    <div class="row">
+      <button id="bRace">Race</button>
+    </div>
+  </div>
+  <p class="msg" id="raceMsg"></p>
+  <div class="cards" id="cards"></div>
+
+  <h2 class="section">Benchmark results</h2>
+  <p class="sub" id="benchInfo"></p>
+  <div class="card table-card">
+    <table id="benchTable"></table>
+  </div>
+  <div class="best-known" id="bestKnown"></div>
+</div>
+
+<script src="js/levels.js"></script>
+<script src="js/solvers.js"></script>
+<script src="js/combos.js"></script>
+<script src="bench/results.js"></script>
+<script src="js/lab.js"></script>
+</body>
+</html>

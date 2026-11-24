@@ -1,0 +1,17 @@
+# Normalize line endings to LF in the repository and in checkouts.
+* text=auto eol=lf
+
+*.html text diff=html
+*.css  text diff=css
+*.js   text
+*.json text
+*.md   text diff=markdown
+*.py   text diff=python
+
+# Generated benchmark output: collapse diffs and leave out of language stats.
+bench/*.json linguist-generated=true -diff
+bench/results.js linguist-generated=true -diff
+
+*.png binary
+*.jpg binary
+*.ico binary

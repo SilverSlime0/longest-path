@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Play Longest Path</title>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="nav">
+    <a href="index.html">Lab</a>
+    <a href="play.html" class="on" aria-current="page">Play</a>
+    <a href="generate.html">Map generator</a>
+  </nav>
+  <h1>Play</h1>
+  <p class="sub">Click tiles to place walls. Make the shortest route from the green entry to the red exit as long as you can, without blocking it completely.</p>
+  <div class="layout">
+    <div class="board">
+      <canvas id="cv"></canvas>
+      <div class="legend">
+        <span><i class="sw" style="background:var(--entry)"></i>Entry</span>
+        <span><i class="sw" style="background:var(--exit)"></i>Exit</span>
+        <span><i class="sw" style="background:var(--wall)"></i>Wall</span>
+        <span><i class="sw" style="background:var(--rock)"></i>Rock</span>
+        <span><i class="sw" style="background:var(--path)"></i>Shortest path</span>
+        <span><i class="sw" style="background:linear-gradient(90deg,hsl(200,70%,55%),hsl(20,70%,55%))"></i>Distance to exit</span>
+      </div>
+      <div class="msg" id="msg"></div>
+    </div>
+    <div class="side">
+      <div class="card">
+        <h2>Board</h2>
+        <select id="level" class="picker" data-lock></select>
+      </div>
+      <div class="card">
+        <h2>Stats</h2>
+        <div class="stats">
+          <div class="stat"><div class="v" id="sWalls">0/25</div><div class="k">Walls used</div></div>
+          <div class="stat"><div class="v" id="sLen">0</div><div class="k">Path length</div></div>
+          <div class="stat"><div class="v" id="sMine">–</div><div class="k">Your best</div></div>
+          <div class="stat"><div class="v" id="sOpt">–</div><div class="k">Optimizer best</div></div>
+          <div class="stat" id="exactStat"><div class="v" id="sExact">–</div><div class="k">Proven optimum</div></div>
+          <div class="stat" id="knownStat"><div class="v" id="sKnown">–</div><div class="k">Best known</div></div>
+        </div>
+        <p class="note" id="boardNote"></p>
+      </div>
+      <div class="card">
+        <h2>Controls</h2>
+        <div class="row">
+          <button id="bOpt">Optimize</button>
+          <button id="bExact">Solve exactly</button>
+          <button id="bClear" class="ghost">Clear</button>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <label><input type="checkbox" id="tHeat" checked> Heatmap</label>
+          <label><input type="checkbox" id="tArrows" checked> Flow arrows</label>
+        </div>
+        <div class="sa" id="saInfo"></div>
+      </div>
+      <div class="card">
+        <h2>Share</h2>
+        <input id="shareLink" class="picker" type="text" placeholder="Paste a shared link to load it" aria-label="Solution link" data-lock>
+        <div class="row" style="margin-top:10px">
+          <button id="bExport" data-lock>Export link</button>
+          <button id="bLoad" class="ghost" data-lock>Load link</button>
+        </div>
+      </div>
+      <div class="card how">
+        <h2>How it works</h2>
+        <p><b>The goal.</b> The score is the length of the <i>shortest</i> route from entry to exit, so a maze only counts if every way through it is long. A wall helps only if it forces the shortest route to detour.</p>
+        <p><b>Distance field (BFS).</b> Starting from the exit, a breadth-first search labels every tile with its step count to the exit; the entry's label is the score. The heatmap shows these labels, each arrow points to the neighbor one step closer, and following the arrows from the entry traces the shortest path.</p>
+        <p><b>Blocking check.</b> When you place a wall, the search runs again. If the entry gets no label, the exit has been sealed off and the wall is rejected.</p>
+        <p><b>Optimizer: simulated annealing.</b> It repeatedly moves one wall, usually onto or next to the current shortest path (the only places a wall can lengthen it). A move that lengthens the path is always kept. A move that shortens it is sometimes kept, with a chance that shrinks as the "temperature" cools, so early on it explores and later it refines. Then a polish step tries every useful spot for each wall, and a prune step removes walls that do nothing.</p>
+        <p><b>Tie-break scoring.</b> Among layouts with the same path length, the optimizer prefers ones with fewer shortest routes, so a half-built barrier counts as progress before it actually lengthens the path.</p>
+        <p><b>Small boards: annealing restarts.</b> Short, independent annealing runs from random layouts; the best one wins. With only 6 walls, many fresh starts beat one long search that can get stuck. The number of restarts grows with the evaluation budget: one per 14 × walls² evaluations, which is 10 at the Optimize button's 5,000.</p>
+        <p><b>Medium and large boards: parallel tempering.</b> Six annealers run at fixed temperatures, from hot (exploring) to cold (refining), and swap layouts now and then, so a good layout found while exploring gets refined. Moves sometimes shift 2–3 walls or slide a whole barrier, and the whole thing restarts from scratch so one unlucky start can't trap the whole run: one restart per 300 × walls² evaluations, which is 2 at the Optimize button's budget on both sizes. The <a href="index.html" style="color:var(--muted)">lab</a> shows how these compare with other methods.</p>
+        <p><b>Solve exactly (small boards).</b> A layout can only beat the current one if it blocks a tile on the current shortest path, because otherwise that path still exists. So the search starts with no walls and, for every tile on the shortest path, tries adding a wall there, repeating until the wall budget is used. Wall sets it has already checked are skipped. Because every route to a better layout gets explored, the best one found is <i>proven</i> optimal. The catch is that the work grows exponentially with the number of walls, which is why this only runs on the small boards. The medium boards were proven offline by a faster version that also skips any branch where more separate short routes remain than walls are left; the large boards are beyond it.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/levels.js"></script>
+<script src="js/state.js"></script>
+<script src="js/grid.js"></script>
+<script src="js/solvers.js"></script>
+<script src="js/combos.js"></script>
+<script src="js/optimizer.js"></script>
+<script src="js/exact.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/render.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

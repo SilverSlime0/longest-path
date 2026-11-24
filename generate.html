@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Map Generator</title>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="nav">
+    <a href="index.html">Lab</a>
+    <a href="play.html">Play</a>
+    <a href="generate.html" class="on" aria-current="page">Map generator</a>
+  </nav>
+  <h1>Map generator</h1>
+  <p class="sub">Generate a new map, then try to build the longest shortest route yourself by clicking tiles, or press Optimize to see what the optimizer finds.</p>
+  <div class="layout">
+    <div class="board">
+      <canvas id="cv"></canvas>
+      <div class="legend">
+        <span><i class="sw" style="background:var(--entry)"></i>Entry</span>
+        <span><i class="sw" style="background:var(--exit)"></i>Exit</span>
+        <span><i class="sw" style="background:var(--wall)"></i>Wall</span>
+        <span><i class="sw" style="background:var(--rock)"></i>Rock</span>
+        <span><i class="sw" style="background:var(--path)"></i>Shortest path</span>
+        <span><i class="sw" style="background:linear-gradient(90deg,hsl(200,70%,55%),hsl(20,70%,55%))"></i>Distance to exit</span>
+      </div>
+      <div class="msg" id="msg"></div>
+    </div>
+    <div class="side">
+      <div class="card">
+        <h2>Map</h2>
+        <div class="form">
+          <label>Size
+            <select id="gSize" class="picker" data-lock>
+              <option value="small">Small · 11×9</option>
+              <option value="medium" selected>Medium · 15×11</option>
+              <option value="large">Large · 21×15</option>
+            </select>
+          </label>
+          <label>Walls <input id="gWalls" class="picker" type="number" min="1" max="40" value="10" data-lock></label>
+          <label>Entry and exit
+            <select id="gEnds" class="picker" data-lock>
+              <option value="sides">Opposite sides, middle</option>
+              <option value="corners">Opposite corners</option>
+              <option value="random">Opposite sides, random row</option>
+            </select>
+          </label>
+          <label>Rocks: <span id="gRocksLabel">10%</span> <input id="gRocks" type="range" min="0" max="25" value="10" data-lock></label>
+          <label>Seed <input id="gSeed" class="picker" type="number" min="1" data-lock></label>
+          <button id="bNew" data-lock>New map</button>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Stats</h2>
+        <div class="stats">
+          <div class="stat"><div class="v" id="sWalls">0/10</div><div class="k">Walls used</div></div>
+          <div class="stat"><div class="v" id="sLen">0</div><div class="k">Path length</div></div>
+          <div class="stat"><div class="v" id="sMine">–</div><div class="k">Your best</div></div>
+          <div class="stat"><div class="v" id="sOpt">–</div><div class="k">Optimizer best</div></div>
+          <div class="stat" id="exactStat"><div class="v" id="sExact">–</div><div class="k">Proven optimum</div></div>
+          <div class="stat" id="knownStat"><div class="v" id="sKnown">–</div><div class="k">Best known</div></div>
+        </div>
+        <p class="note" id="boardNote"></p>
+      </div>
+      <div class="card">
+        <h2>Controls</h2>
+        <div class="row">
+          <button id="bOpt">Optimize</button>
+          <button id="bExact">Solve exactly</button>
+          <button id="bClear" class="ghost">Clear</button>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <label><input type="checkbox" id="tHeat" checked> Heatmap</label>
+          <label><input type="checkbox" id="tArrows" checked> Flow arrows</label>
+        </div>
+        <div class="sa" id="saInfo"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/levels.js"></script>
+<script src="js/state.js"></script>
+<script src="js/grid.js"></script>
+<script src="js/solvers.js"></script>
+<script src="js/combos.js"></script>
+<script src="js/mapgen.js"></script>
+<script src="js/optimizer.js"></script>
+<script src="js/exact.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/render.js"></script>
+<script src="js/generator.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
